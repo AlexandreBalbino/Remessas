@@ -1,2 +1,2 @@
 # Remessas
-Repositório com teste de remessa
+Repositório com processo seletivo de remessa
