@@ -17,4 +17,8 @@ public class UsariosService {
         return usuarioRepository.findById(id).get();
     }
 
+    public Usuario saveUsuario(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
 }

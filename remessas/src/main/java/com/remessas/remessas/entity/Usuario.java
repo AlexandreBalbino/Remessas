@@ -32,4 +32,13 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Carteira> carteiras;
+
+    public Boolean isCpf() {
+        return cpfCnpj.length() == 11;
+    }
+
+    public Boolean isCnpj() {
+        return cpfCnpj.length() == 14;
+    }
+
 }
