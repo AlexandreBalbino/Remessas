@@ -1,5 +1,7 @@
 package com.remessas.remessas.controller;
 
+import java.security.NoSuchAlgorithmException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,23 +34,24 @@ public class UsariosController extends BaseController {
 
     @PostMapping("/pf")
     public ResponseEntity<String> criarPessoaFisica(@Valid @RequestBody CriarPessoaFisicaUsuarioDto criarUsuarioDto,
-            BindingResult bindingResult) throws UsuarioExistenteException {
+            BindingResult bindingResult) throws UsuarioExistenteException, NoSuchAlgorithmException {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body("Erro na validação: " + bindingResult.getAllErrors());
+            return ResponseEntity.badRequest().body("Erro na validação: " +
+                    bindingResult.getAllErrors());
         }
 
-        usuarioService.saveUsuarioPessoFisica(criarUsuarioDto);
+        usuarioService.salvaUsuarioPessoFisica(criarUsuarioDto);
         return ResponseEntity.ok("User criado com sucesso");
     }
 
     @PostMapping("/pj")
     public ResponseEntity<String> criarPessoaJuridica(@Valid @RequestBody CriarPessoaJuridicaUsuarioDto criarUsuarioDto,
-            BindingResult bindingResult) throws UsuarioExistenteException {
+            BindingResult bindingResult) throws UsuarioExistenteException, NoSuchAlgorithmException {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body("Erro na validação: " + bindingResult.getAllErrors());
         }
 
-        usuarioService.saveUsuarioPessoJuridica(criarUsuarioDto);
+        usuarioService.salvaUsuarioPessoJuridica(criarUsuarioDto);
         return ResponseEntity.ok("User criado com sucesso");
     }
 }

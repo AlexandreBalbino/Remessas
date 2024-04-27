@@ -20,4 +20,11 @@ public class BaseController {
         return ResponseEntity.badRequest().body(errorMessage);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+
+        String errorMessage = "Ocorreu um erro.";
+        return ResponseEntity.internalServerError().body(errorMessage);
+    }
+
 }

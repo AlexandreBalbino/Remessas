@@ -1,12 +1,16 @@
 package com.remessas.remessas.service;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.remessas.remessas.dto.CriarPessoaFisicaUsuarioDto;
 import com.remessas.remessas.dto.CriarPessoaJuridicaUsuarioDto;
+import com.remessas.remessas.entity.Carteira;
 import com.remessas.remessas.entity.Usuario;
+import com.remessas.remessas.enums.Origem;
 import com.remessas.remessas.exception.UsuarioExistenteException;
 import com.remessas.remessas.mapper.CriarPessoaFisicaUsuarioDtoMapper;
 import com.remessas.remessas.mapper.CriarPessoaJuridicaUsuarioDtoMapper;
@@ -26,18 +30,34 @@ public class UsariosService {
         return usuarioRepository.findById(id).get();
     }
 
-    public Usuario saveUsuarioPessoFisica(CriarPessoaFisicaUsuarioDto usuarioDto) throws UsuarioExistenteException {
+    public Usuario salvaUsuarioPessoFisica(CriarPessoaFisicaUsuarioDto usuarioDto)
+            throws UsuarioExistenteException, NoSuchAlgorithmException {
         var usuario = criarPessoaFisicaUsuarioDtoMapper.map(usuarioDto);
-        validaUsuarioExistente(usuario);
-        return usuarioRepository.saveAndFlush(usuario);
-
+        return salvaUsuario(usuario);
     }
 
-    public Usuario saveUsuarioPessoJuridica(CriarPessoaJuridicaUsuarioDto usuarioDto) throws UsuarioExistenteException {
+    public Usuario salvaUsuarioPessoJuridica(CriarPessoaJuridicaUsuarioDto usuarioDto)
+            throws UsuarioExistenteException, NoSuchAlgorithmException {
         var usuario = criarPessoaJuridicaUsuarioDtoMapper.map(usuarioDto);
-        validaUsuarioExistente(usuario);
-        return usuarioRepository.saveAndFlush(usuario);
+        return salvaUsuario(usuario);
+    }
 
+    private Usuario salvaUsuario(Usuario usuario) throws UsuarioExistenteException, NoSuchAlgorithmException {
+        validaUsuarioExistente(usuario);
+        usuario.criptografaSenha();
+        var usuarioSalvo = usuarioRepository.saveAndFlush(usuario);
+        usuario.setCarteiras(criaCarteiras(usuario));
+        return usuarioRepository.save(usuarioSalvo);
+    }
+
+    private List<Carteira> criaCarteiras(Usuario usuario) {
+        var carteiraPt = Carteira.builder().saldo(0.00).origem(Origem.PT).usuario(usuario).build();
+        var carteiraEn = Carteira.builder().saldo(0.00).origem(Origem.EN).usuario(usuario).build();
+
+        List<Carteira> carteiras = new ArrayList<>();
+        carteiras.add(carteiraPt);
+        carteiras.add(carteiraEn);
+        return carteiras;
     }
 
     private void validaUsuarioExistente(Usuario usuario) throws UsuarioExistenteException {

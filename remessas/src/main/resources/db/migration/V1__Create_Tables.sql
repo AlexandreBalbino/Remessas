@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     nome VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     cpf_cnpj VARCHAR(14) NOT NULL UNIQUE,
-    senha VARCHAR(14) NOT NULL 
+    senha VARCHAR(250) NOT NULL 
 );
 
 
