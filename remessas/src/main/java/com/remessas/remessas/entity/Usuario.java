@@ -44,10 +44,10 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Carteira> carteiras;
 
-    @OneToMany(mappedBy = "usuarioRemetente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "usuarioRemetente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Remessa> remessaRemetente;
 
-    @OneToMany(mappedBy = "usuarioDestinario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "usuarioDestinario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Remessa> remessaUsuario;
 
     public Boolean isCpf() {

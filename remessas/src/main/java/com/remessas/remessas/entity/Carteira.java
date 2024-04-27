@@ -1,5 +1,7 @@
 package com.remessas.remessas.entity;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.remessas.remessas.enums.Origem;
 
@@ -30,7 +32,7 @@ public class Carteira {
     private Long id;
 
     @Column(nullable = false)
-    private Double saldo;
+    private BigDecimal saldo;
 
     @Column(nullable = false, length = 2)
     @Enumerated(value = EnumType.STRING)

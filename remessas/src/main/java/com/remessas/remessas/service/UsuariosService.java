@@ -1,5 +1,6 @@
 package com.remessas.remessas.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +57,8 @@ public class UsuariosService {
     }
 
     private List<Carteira> criaCarteiras(Usuario usuario) {
-        var carteiraPt = Carteira.builder().saldo(0.00).origem(Origem.PT).usuario(usuario).build();
-        var carteiraEn = Carteira.builder().saldo(0.00).origem(Origem.EN).usuario(usuario).build();
+        var carteiraPt = Carteira.builder().saldo(BigDecimal.ZERO).origem(Origem.PT).usuario(usuario).build();
+        var carteiraEn = Carteira.builder().saldo(BigDecimal.ZERO).origem(Origem.EN).usuario(usuario).build();
 
         List<Carteira> carteiras = new ArrayList<>();
         carteiras.add(carteiraPt);
