@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.remessas.remessas.dto.CriarPessoaFisicaUsuarioDto;
-import com.remessas.remessas.dto.CriarPessoaJuridicaUsuarioDto;
+import com.remessas.remessas.dto.usuario.CriarPessoaFisicaUsuarioDto;
+import com.remessas.remessas.dto.usuario.CriarPessoaJuridicaUsuarioDto;
 import com.remessas.remessas.entity.Usuario;
 import com.remessas.remessas.exception.UsuarioExistenteException;
 import com.remessas.remessas.service.UsuariosService;
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/usuarios")
+@RequestMapping(value = "/usuario")
 public class UsuariosController extends BaseController {
 
     final UsuariosService usuarioService;

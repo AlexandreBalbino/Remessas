@@ -1,6 +1,5 @@
 package com.remessas.remessas.entity;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import com.remessas.remessas.util.SegurancaSenhaUtil;
@@ -44,6 +43,12 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Carteira> carteiras;
+
+    @OneToMany(mappedBy = "usuarioRemetente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Remessa> remessaRemetente;
+
+    @OneToMany(mappedBy = "usuarioDestinario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Remessa> remessaUsuario;
 
     public Boolean isCpf() {
         return cpfCnpj.length() == 11;

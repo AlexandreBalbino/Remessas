@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS remessa (
     remessa NUMERIC(12, 2) NOT NULL,
     id_usuario_remetente INT NOT NULL,
     id_usuario_destinatario INT NOT NULL,
-    data_remessa TIMESTAMP NOT NULL,
+    data_remessa TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_usuario_remetente) REFERENCES usuario(id),
     FOREIGN KEY (id_usuario_destinatario) REFERENCES usuario(id)
 );

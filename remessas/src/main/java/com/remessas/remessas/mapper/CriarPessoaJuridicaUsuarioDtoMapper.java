@@ -2,7 +2,7 @@ package com.remessas.remessas.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.remessas.remessas.dto.CriarPessoaJuridicaUsuarioDto;
+import com.remessas.remessas.dto.usuario.CriarPessoaJuridicaUsuarioDto;
 import com.remessas.remessas.entity.Usuario;
 
 @Component

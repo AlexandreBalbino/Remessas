@@ -1,4 +1,4 @@
-package com.remessas.remessas.dto;
+package com.remessas.remessas.dto.usuario;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

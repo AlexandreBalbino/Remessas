@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.remessas.remessas.dto.CriarPessoaFisicaUsuarioDto;
-import com.remessas.remessas.dto.CriarPessoaJuridicaUsuarioDto;
+import com.remessas.remessas.dto.usuario.CriarPessoaFisicaUsuarioDto;
+import com.remessas.remessas.dto.usuario.CriarPessoaJuridicaUsuarioDto;
 import com.remessas.remessas.entity.Carteira;
 import com.remessas.remessas.entity.Usuario;
 import com.remessas.remessas.enums.Origem;

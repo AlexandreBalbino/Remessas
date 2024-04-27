@@ -1,4 +1,4 @@
-package com.remessas.remessas.dto;
+package com.remessas.remessas.dto.usuario;
 
 import org.hibernate.validator.constraints.br.CNPJ;
 
