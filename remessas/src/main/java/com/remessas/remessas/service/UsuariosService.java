@@ -1,6 +1,5 @@
 package com.remessas.remessas.service;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,35 +13,38 @@ import com.remessas.remessas.enums.Origem;
 import com.remessas.remessas.exception.UsuarioExistenteException;
 import com.remessas.remessas.mapper.CriarPessoaFisicaUsuarioDtoMapper;
 import com.remessas.remessas.mapper.CriarPessoaJuridicaUsuarioDtoMapper;
-import com.remessas.remessas.repository.UsariosRepository;
+import com.remessas.remessas.repository.UsuariosRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UsariosService {
+public class UsuariosService {
 
-    final UsariosRepository usuarioRepository;
+    final UsuariosRepository usuarioRepository;
     final CriarPessoaFisicaUsuarioDtoMapper criarPessoaFisicaUsuarioDtoMapper;
     final CriarPessoaJuridicaUsuarioDtoMapper criarPessoaJuridicaUsuarioDtoMapper;
 
     public Usuario obtemUsuario(Long id) {
-        return usuarioRepository.findById(id).get();
+        var usuario = usuarioRepository.findById(id);
+        if (!usuario.isPresent())
+            return null;
+        return usuario.get();
     }
 
     public Usuario salvaUsuarioPessoFisica(CriarPessoaFisicaUsuarioDto usuarioDto)
-            throws UsuarioExistenteException, NoSuchAlgorithmException {
+            throws UsuarioExistenteException {
         var usuario = criarPessoaFisicaUsuarioDtoMapper.map(usuarioDto);
         return salvaUsuario(usuario);
     }
 
     public Usuario salvaUsuarioPessoJuridica(CriarPessoaJuridicaUsuarioDto usuarioDto)
-            throws UsuarioExistenteException, NoSuchAlgorithmException {
+            throws UsuarioExistenteException {
         var usuario = criarPessoaJuridicaUsuarioDtoMapper.map(usuarioDto);
         return salvaUsuario(usuario);
     }
 
-    private Usuario salvaUsuario(Usuario usuario) throws UsuarioExistenteException, NoSuchAlgorithmException {
+    private Usuario salvaUsuario(Usuario usuario) throws UsuarioExistenteException {
         validaUsuarioExistente(usuario);
         usuario.criptografaSenha();
         var usuarioSalvo = usuarioRepository.saveAndFlush(usuario);

@@ -15,7 +15,7 @@ import com.remessas.remessas.dto.CriarPessoaFisicaUsuarioDto;
 import com.remessas.remessas.dto.CriarPessoaJuridicaUsuarioDto;
 import com.remessas.remessas.entity.Usuario;
 import com.remessas.remessas.exception.UsuarioExistenteException;
-import com.remessas.remessas.service.UsariosService;
+import com.remessas.remessas.service.UsuariosService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +23,9 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/users")
-public class UsariosController extends BaseController {
+public class UsuariosController extends BaseController {
 
-    final UsariosService usuarioService;
+    final UsuariosService usuarioService;
 
     @GetMapping(value = "/{id}")
     public Usuario obtemUsuario(@PathVariable(value = "id") Long id) {
@@ -34,7 +34,7 @@ public class UsariosController extends BaseController {
 
     @PostMapping("/pf")
     public ResponseEntity<String> criarPessoaFisica(@Valid @RequestBody CriarPessoaFisicaUsuarioDto criarUsuarioDto,
-            BindingResult bindingResult) throws UsuarioExistenteException, NoSuchAlgorithmException {
+            BindingResult bindingResult) throws UsuarioExistenteException {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body("Erro na validação: " +
                     bindingResult.getAllErrors());

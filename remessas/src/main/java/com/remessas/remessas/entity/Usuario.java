@@ -3,7 +3,7 @@ package com.remessas.remessas.entity;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import com.remessas.remessas.util.SegurancaSenha;
+import com.remessas.remessas.util.SegurancaSenhaUtil;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -53,8 +53,8 @@ public class Usuario {
         return cpfCnpj.length() == 14;
     }
 
-    public void criptografaSenha() throws NoSuchAlgorithmException {
-        this.senha = SegurancaSenha.criptografaSenha(senha);
+    public void criptografaSenha() {
+        this.senha = SegurancaSenhaUtil.criptografaSenha(senha);
     }
 
 }
