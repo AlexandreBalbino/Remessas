@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.remessas.remessas.dto.CriarPessoaFisicaUsuarioDto;
+import com.remessas.remessas.dto.CriarPessoaJuridicaUsuarioDto;
 import com.remessas.remessas.entity.Usuario;
+import com.remessas.remessas.exception.UsuarioExistenteException;
 import com.remessas.remessas.service.UsariosService;
 
 import jakarta.validation.Valid;
@@ -19,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/users")
-public class UsariosController {
+public class UsariosController extends BaseController {
 
     final UsariosService usuarioService;
 
@@ -30,21 +32,23 @@ public class UsariosController {
 
     @PostMapping("/pf")
     public ResponseEntity<String> criarPessoaFisica(@Valid @RequestBody CriarPessoaFisicaUsuarioDto criarUsuarioDto,
-            BindingResult bindingResult) {
+            BindingResult bindingResult) throws UsuarioExistenteException {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body("Validation errors: " + bindingResult.getAllErrors());
+            return ResponseEntity.badRequest().body("Erro na validação: " + bindingResult.getAllErrors());
         }
 
-        return ResponseEntity.ok("User created successfully");
+        usuarioService.saveUsuarioPessoFisica(criarUsuarioDto);
+        return ResponseEntity.ok("User criado com sucesso");
     }
 
     @PostMapping("/pj")
-    public ResponseEntity<String> criarPessoaJuridica(@Valid @RequestBody CriarPessoaFisicaUsuarioDto criarUsuarioDto,
-            BindingResult bindingResult) {
+    public ResponseEntity<String> criarPessoaJuridica(@Valid @RequestBody CriarPessoaJuridicaUsuarioDto criarUsuarioDto,
+            BindingResult bindingResult) throws UsuarioExistenteException {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body("Validation errors: " + bindingResult.getAllErrors());
+            return ResponseEntity.badRequest().body("Erro na validação: " + bindingResult.getAllErrors());
         }
 
-        return ResponseEntity.ok("User created successfully");
+        usuarioService.saveUsuarioPessoJuridica(criarUsuarioDto);
+        return ResponseEntity.ok("User criado com sucesso");
     }
 }

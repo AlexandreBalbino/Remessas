@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class CriarPessoaJuridicaUsuarioDto {
+public class CriarPessoaJuridicaUsuarioDto extends CriarUsuarioDto {
     @NotNull
     @CNPJ
     private String cpfCnpj;
