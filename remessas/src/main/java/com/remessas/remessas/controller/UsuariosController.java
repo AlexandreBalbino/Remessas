@@ -15,6 +15,7 @@ import com.remessas.remessas.dto.usuario.CriarPessoaFisicaUsuarioDto;
 import com.remessas.remessas.dto.usuario.CriarPessoaJuridicaUsuarioDto;
 import com.remessas.remessas.entity.Usuario;
 import com.remessas.remessas.exception.UsuarioExistenteException;
+import com.remessas.remessas.exception.ValidacaoRequestException;
 import com.remessas.remessas.service.UsuariosService;
 
 import jakarta.validation.Valid;
@@ -34,10 +35,9 @@ public class UsuariosController extends BaseController {
 
     @PostMapping("/pf")
     public ResponseEntity<String> criarPessoaFisica(@Valid @RequestBody CriarPessoaFisicaUsuarioDto criarUsuarioDto,
-            BindingResult bindingResult) throws UsuarioExistenteException {
+            BindingResult bindingResult) throws UsuarioExistenteException, ValidacaoRequestException {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body("Erro na validação: " +
-                    bindingResult.getAllErrors());
+            throw new ValidacaoRequestException(bindingResult.getAllErrors());
         }
 
         usuarioService.salvaUsuarioPessoFisica(criarUsuarioDto);
@@ -46,9 +46,10 @@ public class UsuariosController extends BaseController {
 
     @PostMapping("/pj")
     public ResponseEntity<String> criarPessoaJuridica(@Valid @RequestBody CriarPessoaJuridicaUsuarioDto criarUsuarioDto,
-            BindingResult bindingResult) throws UsuarioExistenteException, NoSuchAlgorithmException {
+            BindingResult bindingResult)
+            throws UsuarioExistenteException, NoSuchAlgorithmException, ValidacaoRequestException {
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body("Erro na validação: " + bindingResult.getAllErrors());
+            throw new ValidacaoRequestException(bindingResult.getAllErrors());
         }
 
         usuarioService.salvaUsuarioPessoJuridica(criarUsuarioDto);
