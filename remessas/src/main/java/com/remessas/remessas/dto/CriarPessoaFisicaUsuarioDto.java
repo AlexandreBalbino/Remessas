@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class CriarPessoaFisicaUsuarioDto extends CriarUsuarioDto {
 
-    @NotNull
-    @CPF
+    @NotNull(message = "Cpf não pode estar vazio")
+    @CPF(message = "Cpf inválido")
     private String cpfCnpj;
 }

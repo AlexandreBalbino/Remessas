@@ -21,9 +21,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsuariosService {
 
-    final UsuariosRepository usuarioRepository;
-    final CriarPessoaFisicaUsuarioDtoMapper criarPessoaFisicaUsuarioDtoMapper;
-    final CriarPessoaJuridicaUsuarioDtoMapper criarPessoaJuridicaUsuarioDtoMapper;
+    private final UsuariosRepository usuarioRepository;
+    private final CriarPessoaFisicaUsuarioDtoMapper criarPessoaFisicaUsuarioDtoMapper;
+    private final CriarPessoaJuridicaUsuarioDtoMapper criarPessoaJuridicaUsuarioDtoMapper;
 
     public Usuario obtemUsuario(Long id) {
         var usuario = usuarioRepository.findById(id);
@@ -46,8 +46,11 @@ public class UsuariosService {
 
     private Usuario salvaUsuario(Usuario usuario) throws UsuarioExistenteException {
         validaUsuarioExistente(usuario);
+
         usuario.criptografaSenha();
+
         var usuarioSalvo = usuarioRepository.saveAndFlush(usuario);
+
         usuario.setCarteiras(criaCarteiras(usuario));
         return usuarioRepository.save(usuarioSalvo);
     }

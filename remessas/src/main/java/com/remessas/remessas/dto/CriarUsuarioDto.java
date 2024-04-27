@@ -7,10 +7,10 @@ import lombok.Data;
 @Data
 public class CriarUsuarioDto {
 
-    @NotBlank(message = "Name is required")
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
 
-    @Email(message = "Email should be valid")
+    @Email(message = "E-mail inválido")
     private String email;
 
     private String senha;

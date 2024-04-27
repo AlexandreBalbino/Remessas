@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class CriarPessoaJuridicaUsuarioDto extends CriarUsuarioDto {
-    @NotNull
-    @CNPJ
+    @NotNull(message = "Cnpj é obrigatório")
+    @CNPJ(message = "Cnpj inválido")
     private String cpfCnpj;
 }
