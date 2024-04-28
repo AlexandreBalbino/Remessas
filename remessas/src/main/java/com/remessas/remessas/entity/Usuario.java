@@ -2,6 +2,7 @@ package com.remessas.remessas.entity;
 
 import java.util.List;
 
+import com.remessas.remessas.enums.Origem;
 import com.remessas.remessas.util.SegurancaSenhaUtil;
 
 import jakarta.persistence.CascadeType;
@@ -60,6 +61,16 @@ public class Usuario {
 
     public void criptografaSenha() {
         this.senha = SegurancaSenhaUtil.criptografaSenha(senha);
+    }
+
+    public Carteira getCarteiraPt() {
+        return carteiras.stream().filter(x -> x.getOrigem() == Origem.PT)
+                .findFirst().get();
+    }
+
+    public Carteira getCarteiraEn() {
+        return carteiras.stream().filter(x -> x.getOrigem() == Origem.EN)
+                .findFirst().get();
     }
 
 }

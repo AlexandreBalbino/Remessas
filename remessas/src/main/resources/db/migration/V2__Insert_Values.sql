@@ -6,7 +6,7 @@ INSERT INTO usuario( nome, email, cpf_cnpj, senha) VALUES
 
 
 INSERT INTO carteira( id_usuario, saldo, origem) VALUES
- (1, 35.50, 'PT'),
+ (1, 500.50, 'PT'),
  (1, 5.50, 'EN'),
  (2, 100000.00, 'PT'),
  (2, 5.50, 'EN'),

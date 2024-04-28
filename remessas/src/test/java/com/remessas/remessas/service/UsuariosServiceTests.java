@@ -29,7 +29,7 @@ import com.remessas.remessas.mapper.CriarPessoaJuridicaUsuarioDtoMapper;
 import com.remessas.remessas.repository.UsuariosRepository;
 
 @SpringBootTest
-public class UsuariosServiceTest {
+public class UsuariosServiceTests {
 
     @Mock
     private UsuariosRepository usuariosRepository;
