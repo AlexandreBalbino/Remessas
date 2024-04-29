@@ -94,18 +94,18 @@ public class RemessasService {
             throws RemessaException {
 
         carteiraPtRemetente.setSaldo(
-                calculaSaldoRemetente(carteiraPtRemetente.getSaldo(), remessaDto.getRemessa()));
+                subtraiSaldoRemetente(carteiraPtRemetente.getSaldo(), remessaDto.getRemessa()));
     }
 
     private void calculaCarteiraEnDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario) {
-        carteiraEnDestinatario.setSaldo(calculaSaldoDestinatario(remessaDto, carteiraEnDestinatario));
+        carteiraEnDestinatario.setSaldo(adicionaSaldoDestinatario(remessaDto, carteiraEnDestinatario));
     }
 
-    private BigDecimal calculaSaldoRemetente(BigDecimal saldoRemetente, BigDecimal remessa) {
+    private BigDecimal subtraiSaldoRemetente(BigDecimal saldoRemetente, BigDecimal remessa) {
         return saldoRemetente.subtract(remessa);
     }
 
-    private BigDecimal calculaSaldoDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario) {
+    private BigDecimal adicionaSaldoDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario) {
         var precisaoCalculo = new MathContext(3, RoundingMode.HALF_UP);
         var remessaConvertida = remessaDto.getRemessa().divide(new BigDecimal("5.16"), precisaoCalculo);
         return carteiraEnDestinatario.getSaldo().add(remessaConvertida);
@@ -128,8 +128,7 @@ public class RemessasService {
                 .dataRemessa(LocalDateTime.now())
                 .build();
 
-        remessaRepository.save(remessa);
-        return remessa;
+        return remessaRepository.saveAndFlush(remessa);
     }
 
 }

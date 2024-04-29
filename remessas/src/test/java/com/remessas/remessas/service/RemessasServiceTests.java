@@ -31,194 +31,213 @@ import com.remessas.remessas.util.DataUtil;
 
 @SpringBootTest
 public class RemessasServiceTests {
-    @Mock
-    private UsuariosRepository usuariosRepository;
+        @Mock
+        private UsuariosRepository usuariosRepository;
 
-    @Mock
-    private RemessasRepository remessasRepository;
+        @Mock
+        private RemessasRepository remessasRepository;
 
-    @InjectMocks
-    private RemessasService remessasService;
+        @InjectMocks
+        private RemessasService remessasService;
 
-    final String remetente = "remetente@email.com";
-    final String destinatario = "destinatario@email.com";
+        final String remetente = "remetente@email.com";
+        final String destinatario = "destinatario@email.com";
 
-    @Test
-    void Retorna_Erro_Caso_Remetente_Nao_Exista() throws Exception {
-        var remessaDto = new RemessaDto();
-        when(usuariosRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        @Test
+        void Retorna_Erro_Caso_Remetente_Nao_Exista() throws Exception {
+                var remessaDto = new RemessaDto();
+                when(usuariosRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(UsuarioInexistenteException.class, () -> {
-            remessasService.criarRemessa(remetente, remessaDto);
-        });
-    }
+                assertThrows(UsuarioInexistenteException.class, () -> {
+                        remessasService.criarRemessa(remetente, remessaDto);
+                });
+        }
 
-    @Test
-    void Retorna_Erro_Caso_Destinatario_Nao_Exista() throws Exception {
-        var remessaDto = new RemessaDto();
-        remessaDto.setEmailDestinario(destinatario);
+        @Test
+        void Retorna_Erro_Caso_Destinatario_Nao_Exista() throws Exception {
+                var remessaDto = new RemessaDto();
+                remessaDto.setEmailDestinario(destinatario);
 
-        var usuarioRemetente = Usuario.builder().build();
+                var usuarioRemetente = Usuario.builder().build();
 
-        when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
-        when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.empty());
+                when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
+                when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.empty());
 
-        assertThrows(UsuarioInexistenteException.class, () -> {
-            remessasService.criarRemessa(remetente, remessaDto);
-        });
-    }
+                assertThrows(UsuarioInexistenteException.class, () -> {
+                        remessasService.criarRemessa(remetente, remessaDto);
+                });
+        }
 
-    @Test
-    void Retorna_Erro_Caso_Saldo_Insuficiente_Remetente() throws Exception {
-        var remessaDto = new RemessaDto();
-        remessaDto.setEmailDestinario(destinatario);
-        remessaDto.setRemessa(new BigDecimal("20"));
+        @Test
+        void Retorna_Erro_Caso_Saldo_Insuficiente_Remetente() throws Exception {
+                var remessaDto = new RemessaDto();
+                remessaDto.setEmailDestinario(destinatario);
+                remessaDto.setRemessa(new BigDecimal("20"));
 
-        var usuarioRemetente = Usuario.builder()
-                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
-                .build();
+                var usuarioRemetente = Usuario.builder()
+                                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
+                                .build();
 
-        var usuarioDestinario = Usuario.builder()
-                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
-                .build();
+                var usuarioDestinario = Usuario.builder()
+                                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
+                                .build();
 
-        when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
-        when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
+                when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
+                when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
 
-        var erro = assertThrows(RemessaException.class, () -> {
-            remessasService.criarRemessa(remetente, remessaDto);
-        });
+                var erro = assertThrows(RemessaException.class, () -> {
+                        remessasService.criarRemessa(remetente, remessaDto);
+                });
 
-        assertEquals("Saldo do remetente insuficiente", erro.getMessage());
-    }
+                assertEquals("Saldo do remetente insuficiente", erro.getMessage());
+        }
 
-    @Test
-    void Retorna_Erro_Limite_Maior_Que_Dez_Mil_PF() throws Exception {
-        var valorRemessa = new BigDecimal("5.16");
-        var inicioMensagemErro = "Limite diario de transação pessoa física";
-        var remessaDto = new RemessaDto();
-        remessaDto.setEmailDestinario(destinatario);
-        remessaDto.setRemessa(valorRemessa);
+        @Test
+        void Retorna_Erro_Limite_Maior_Que_Dez_Mil_PF() throws Exception {
+                var valorRemessa = new BigDecimal("5.16");
+                var inicioMensagemErro = "Limite diario de transação pessoa física";
+                var remessaDto = new RemessaDto();
+                remessaDto.setEmailDestinario(destinatario);
+                remessaDto.setRemessa(valorRemessa);
 
-        var usuarioRemetente = Usuario.builder()
-                .carteiras(getCarteiras(new BigDecimal("35.16"), BigDecimal.ZERO))
-                .id(1L)
-                .cpfCnpj("70981163009")
-                .build();
+                var usuarioRemetente = Usuario.builder()
+                                .carteiras(getCarteiras(new BigDecimal("35.16"), BigDecimal.ZERO))
+                                .id(1L)
+                                .cpfCnpj("70981163009")
+                                .build();
 
-        var usuarioDestinario = Usuario.builder()
-                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
-                .build();
+                var usuarioDestinario = Usuario.builder()
+                                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
+                                .build();
 
-        when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
-        when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
+                when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
+                when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
 
-        var remessaHoje = Remessa.builder().remessa(new BigDecimal("10000"))
-                .dataRemessa(DataUtil.obtemDataHojeInicial())
-                .build();
+                var remessaHoje = Remessa.builder().remessa(new BigDecimal("10000"))
+                                .dataRemessa(DataUtil.obtemDataHojeInicial())
+                                .build();
 
-        var remessasHoje = new ArrayList<Remessa>();
-        remessasHoje.add(remessaHoje);
+                var remessasHoje = new ArrayList<Remessa>();
+                remessasHoje.add(remessaHoje);
 
-        when(remessasRepository.findRemessaByUsuarioAndDataInicioAndDataFim(anyLong(), any(), any()))
-                .thenReturn(remessasHoje);
+                when(remessasRepository.findRemessaByUsuarioAndDataInicioAndDataFim(anyLong(), any(), any()))
+                                .thenReturn(remessasHoje);
 
-        var erro = assertThrows(RemessaException.class, () -> {
-            remessasService.criarRemessa(remetente, remessaDto);
-        });
+                var erro = assertThrows(RemessaException.class, () -> {
+                        remessasService.criarRemessa(remetente, remessaDto);
+                });
 
-        assertTrue(erro.getMessage().startsWith(inicioMensagemErro));
-    }
+                assertTrue(erro.getMessage().startsWith(inicioMensagemErro));
+        }
 
-    @Test
-    void Retorna_Erro_Limite_Maior_Que_Cinquenta_Mil_Pj() throws Exception {
-        var valorRemessa = new BigDecimal("5.16");
-        var inicioMensagemErro = "Limite diario de transação pessoa jurídica";
-        var remessaDto = new RemessaDto();
-        remessaDto.setEmailDestinario(destinatario);
-        remessaDto.setRemessa(valorRemessa);
+        @Test
+        void Retorna_Erro_Limite_Maior_Que_Cinquenta_Mil_Pj() throws Exception {
+                var valorRemessa = new BigDecimal("5.16");
+                var inicioMensagemErro = "Limite diario de transação pessoa jurídica";
+                var remessaDto = new RemessaDto();
+                remessaDto.setEmailDestinario(destinatario);
+                remessaDto.setRemessa(valorRemessa);
 
-        var usuarioRemetente = Usuario.builder()
-                .carteiras(getCarteiras(new BigDecimal("35.16"), BigDecimal.ZERO))
-                .id(1L)
-                .cpfCnpj("12054412000193")
-                .build();
+                var usuarioRemetente = Usuario.builder()
+                                .carteiras(getCarteiras(new BigDecimal("35.16"), BigDecimal.ZERO))
+                                .id(1L)
+                                .cpfCnpj("12054412000193")
+                                .build();
 
-        var usuarioDestinario = Usuario.builder()
-                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
-                .build();
+                var usuarioDestinario = Usuario.builder()
+                                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
+                                .build();
 
-        when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
-        when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
+                when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
+                when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
 
-        var remessaHoje = Remessa.builder().remessa(new BigDecimal("50000"))
-                .dataRemessa(DataUtil.obtemDataHojeInicial())
-                .build();
+                var remessaHoje = Remessa.builder().remessa(new BigDecimal("50000"))
+                                .dataRemessa(DataUtil.obtemDataHojeInicial())
+                                .build();
 
-        var remessasHoje = new ArrayList<Remessa>();
-        remessasHoje.add(remessaHoje);
+                var remessasHoje = new ArrayList<Remessa>();
+                remessasHoje.add(remessaHoje);
 
-        when(remessasRepository.findRemessaByUsuarioAndDataInicioAndDataFim(anyLong(), any(), any()))
-                .thenReturn(remessasHoje);
+                when(remessasRepository.findRemessaByUsuarioAndDataInicioAndDataFim(anyLong(), any(), any()))
+                                .thenReturn(remessasHoje);
 
-        var erro = assertThrows(RemessaException.class, () -> {
-            remessasService.criarRemessa(remetente, remessaDto);
-        });
+                var erro = assertThrows(RemessaException.class, () -> {
+                        remessasService.criarRemessa(remetente, remessaDto);
+                });
 
-        assertTrue(erro.getMessage().startsWith(inicioMensagemErro));
-    }
+                assertTrue(erro.getMessage().startsWith(inicioMensagemErro));
+        }
 
-    @Test
-    void Retorna_Sucesso() throws Exception {
-        var valorRemessa = new BigDecimal("5.16");
-        var resultadoSaldoRemetente = new BigDecimal("30");
-        var resultadoSaldoDestinatario = new BigDecimal("1.00");
-        var resultadoIgual = 0;
+        @Test
+        void Retorna_Sucesso() throws Exception {
+                var valorRemessa = new BigDecimal("5.16");
+                var resultadoSaldoRemetente = new BigDecimal("30");
+                var resultadoSaldoDestinatario = new BigDecimal("1.00");
+                var resultadoIgual = 0;
+                var valorRemessaRealizadaHoje = new BigDecimal("500");
+                var cpfCnpjRemetente = "99410073065";
 
-        var remessaDto = new RemessaDto();
-        remessaDto.setEmailDestinario(destinatario);
-        remessaDto.setRemessa(valorRemessa);
+                var remessaDto = new RemessaDto();
+                remessaDto.setEmailDestinario(destinatario);
+                remessaDto.setRemessa(valorRemessa);
 
-        var usuarioRemetente = Usuario.builder()
-                .carteiras(getCarteiras(new BigDecimal("35.16"), BigDecimal.ZERO))
-                .id(1L)
-                .cpfCnpj("99410073065")
-                .build();
+                var usuarioRemetente = Usuario.builder()
+                                .carteiras(getCarteiras(new BigDecimal("35.16"), BigDecimal.ZERO))
+                                .id(1L)
+                                .cpfCnpj(cpfCnpjRemetente)
+                                .build();
 
-        var usuarioDestinario = Usuario.builder()
-                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
-                .build();
+                var usuarioDestinario = Usuario.builder()
+                                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
+                                .build();
 
-        when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
-        when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
+                when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
+                when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
 
-        var remessaHoje = Remessa.builder().remessa(new BigDecimal("500")).dataRemessa(DataUtil.obtemDataHojeInicial())
-                .build();
+                var remessaHoje = Remessa.builder().remessa(valorRemessaRealizadaHoje)
+                                .dataRemessa(DataUtil.obtemDataHojeInicial())
+                                .build();
 
-        var remessasHoje = new ArrayList<Remessa>();
-        remessasHoje.add(remessaHoje);
+                var remessasHoje = new ArrayList<Remessa>();
+                remessasHoje.add(remessaHoje);
 
-        when(remessasRepository.findRemessaByUsuarioAndDataInicioAndDataFim(anyLong(), any(), any()))
-                .thenReturn(remessasHoje);
+                when(remessasRepository.findRemessaByUsuarioAndDataInicioAndDataFim(anyLong(), any(), any()))
+                                .thenReturn(remessasHoje);
 
-        var remessa = remessasService.criarRemessa(remetente, remessaDto);
+                var usuarioRemetentePosRemessa = Usuario.builder()
+                                .carteiras(getCarteiras(resultadoSaldoRemetente, BigDecimal.ZERO))
+                                .id(1L)
+                                .cpfCnpj(cpfCnpjRemetente)
+                                .build();
 
-        assertEquals(valorRemessa.compareTo(remessa.getRemessa()), resultadoIgual);
-        assertEquals(resultadoSaldoRemetente.compareTo(remessa.getUsuarioRemetente().getCarteiraPt().getSaldo()),
-                resultadoIgual);
-        assertEquals(resultadoSaldoDestinatario.compareTo(remessa.getUsuarioDestinario().getCarteiraEn().getSaldo()),
-                resultadoIgual);
+                var usuarioDestinarioPosRemessa = Usuario.builder()
+                                .carteiras(getCarteiras(BigDecimal.ZERO, resultadoSaldoDestinatario))
+                                .build();
+                var remessaAtual = Remessa.builder().usuarioRemetente(usuarioRemetentePosRemessa)
+                                .usuarioDestinario(usuarioDestinarioPosRemessa)
+                                .remessa(valorRemessa).build();
+                when(remessasRepository.saveAndFlush(any())).thenReturn(remessaAtual);
 
-    }
+                var remessa = remessasService.criarRemessa(remetente, remessaDto);
 
-    private List<Carteira> getCarteiras(BigDecimal saldoPt, BigDecimal saldoEn) {
-        var carteiraPt = Carteira.builder().saldo(saldoPt).origem(Origem.PT).build();
-        var carteiraEn = Carteira.builder().saldo(saldoEn).origem(Origem.EN).build();
+                assertEquals(valorRemessa.compareTo(remessa.getRemessa()), resultadoIgual);
+                assertEquals(resultadoSaldoRemetente
+                                .compareTo(remessa.getUsuarioRemetente().getCarteiraPt().getSaldo()),
+                                resultadoIgual);
+                assertEquals(resultadoSaldoDestinatario
+                                .compareTo(remessa.getUsuarioDestinario().getCarteiraEn().getSaldo()),
+                                resultadoIgual);
 
-        List<Carteira> carteiras = new ArrayList<>();
-        carteiras.add(carteiraPt);
-        carteiras.add(carteiraEn);
-        return carteiras;
-    }
+        }
+
+        private List<Carteira> getCarteiras(BigDecimal saldoPt, BigDecimal saldoEn) {
+                var carteiraPt = Carteira.builder().saldo(saldoPt).origem(Origem.PT).build();
+                var carteiraEn = Carteira.builder().saldo(saldoEn).origem(Origem.EN).build();
+
+                List<Carteira> carteiras = new ArrayList<>();
+                carteiras.add(carteiraPt);
+                carteiras.add(carteiraEn);
+                return carteiras;
+        }
 
 }
