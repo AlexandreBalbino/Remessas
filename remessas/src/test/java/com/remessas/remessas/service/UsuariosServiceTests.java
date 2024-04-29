@@ -67,6 +67,7 @@ public class UsuariosServiceTests {
 
     @Test
     void Retorna_Sucesso_Ao_Salvar_Usuario_Fisico() throws UsuarioExistenteException {
+        var igualSaldo = 0;
         var nome = "Joao";
         var cpfCnpj = "12345678912";
         var senha = "123";
@@ -103,10 +104,10 @@ public class UsuariosServiceTests {
         assertEquals(resposta.getCarteiras().size(), 2);
 
         var carteiraPt = resposta.getCarteiras().stream().filter(x -> x.getOrigem() == Origem.PT).findFirst().get();
-        assertEquals(carteiraPt.getSaldo(), 0.00);
+        assertEquals(carteiraPt.getSaldo().compareTo(BigDecimal.ZERO), igualSaldo);
 
         var carteiraEn = resposta.getCarteiras().stream().filter(x -> x.getOrigem() == Origem.EN).findFirst().get();
-        assertEquals(carteiraEn.getSaldo(), 0.00);
+        assertEquals(carteiraEn.getSaldo().compareTo(BigDecimal.ZERO), igualSaldo);
 
     }
 
@@ -141,6 +142,7 @@ public class UsuariosServiceTests {
 
     @Test
     void Retorna_Sucesso_Ao_Salvar_Usuario_Juridico() throws UsuarioExistenteException {
+        var igualSaldo = 0;
         var nome = "Joao";
         var cpfCnpj = "58027329035";
         var senha = "123";
@@ -177,11 +179,10 @@ public class UsuariosServiceTests {
         assertEquals(resposta.getCarteiras().size(), 2);
 
         var carteiraPt = resposta.getCarteiras().stream().filter(x -> x.getOrigem() == Origem.PT).findFirst().get();
-        assertEquals(carteiraPt.getSaldo(), 0.00);
+        assertEquals(carteiraPt.getSaldo().compareTo(BigDecimal.ZERO), igualSaldo);
 
         var carteiraEn = resposta.getCarteiras().stream().filter(x -> x.getOrigem() == Origem.EN).findFirst().get();
-        assertEquals(carteiraEn.getSaldo(), 0.00);
-
+        assertEquals(carteiraEn.getSaldo().compareTo(BigDecimal.ZERO), igualSaldo);
     }
 
     @Test

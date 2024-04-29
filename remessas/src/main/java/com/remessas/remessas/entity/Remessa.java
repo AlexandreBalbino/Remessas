@@ -1,7 +1,7 @@
 package com.remessas.remessas.entity;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -34,7 +34,7 @@ public class Remessa {
     private BigDecimal remessa;
 
     @Column(nullable = false)
-    private Timestamp dataRemessa;
+    private LocalDateTime dataRemessa;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario_remetente", nullable = false)

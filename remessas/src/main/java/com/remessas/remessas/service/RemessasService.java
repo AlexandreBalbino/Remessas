@@ -3,9 +3,8 @@ package com.remessas.remessas.service;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -18,6 +17,7 @@ import com.remessas.remessas.exception.RemessaException;
 import com.remessas.remessas.exception.UsuarioInexistenteException;
 import com.remessas.remessas.repository.RemessasRepository;
 import com.remessas.remessas.repository.UsuariosRepository;
+import com.remessas.remessas.util.DataUtil;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RemessasService {
 
+    private static final int SUPERIOR_LIMITE = 1;
     private static final int SALDO_INSUFICIENTE = -1;
+    private static final int LIMITE_TRANSACIONADO_PF = 10000;
+    private static final int LIMITE_TRANSACIONADO_PJ = 50000;
     private final UsuariosRepository usuariosRepository;
     private final RemessasRepository remessaRepository;
 
@@ -36,12 +39,47 @@ public class RemessasService {
         var usuarioRemetente = obtemUsuarioPorEmail(emailRemetente);
         var usuarioDestinario = obtemUsuarioPorEmail(remessaDto.getEmailDestinario());
 
-        calculaCarteiraPtRemetente(remessaDto, usuarioRemetente);
-        calculaCarteiraEnDestinatario(remessaDto, usuarioDestinario);
+        validaCarteiraPtRemetente(remessaDto, usuarioRemetente);
+        validaTotalRemessasDiaria(remessaDto, usuarioRemetente);
+
+        calculaCarteiraPtRemetente(remessaDto, usuarioRemetente.getCarteiraPt());
+        calculaCarteiraEnDestinatario(remessaDto, usuarioDestinario.getCarteiraEn());
 
         salvaUsuarios(usuarioRemetente, usuarioDestinario);
         var remessa = salvaRemessa(remessaDto, usuarioRemetente, usuarioDestinario);
         return remessa;
+    }
+
+    private void validaCarteiraPtRemetente(RemessaDto remessaDto, Usuario usuarioRemetente)
+            throws RemessaException {
+        var carteiraPtRemetente = usuarioRemetente.getCarteiraPt();
+
+        if (carteiraPtRemetente.getSaldo().compareTo(remessaDto.getRemessa()) == SALDO_INSUFICIENTE) {
+            throw new RemessaException("Saldo do remetente insuficiente");
+        }
+    }
+
+    private void validaTotalRemessasDiaria(RemessaDto remessaDto, Usuario usuarioRemetente)
+            throws RemessaException {
+        var remessasDeHoje = remessaRepository.findRemessaByUsuarioAndDataInicioAndDataFim(usuarioRemetente.getId(),
+                DataUtil.obtemDataHojeInicial(),
+                DataUtil.obtemDataHojeFinal());
+
+        var somaRemessasUsuarioRemetenteDia = remessasDeHoje.stream().map(x -> x.getRemessa()).reduce(BigDecimal.ZERO,
+                BigDecimal::add);
+
+        var totalRemessasComRemessaAtual = somaRemessasUsuarioRemetenteDia.add(remessaDto.getRemessa());
+
+        if (usuarioRemetente.isCpf()
+                && totalRemessasComRemessaAtual.compareTo(new BigDecimal(LIMITE_TRANSACIONADO_PF)) == SUPERIOR_LIMITE) {
+            throw new RemessaException(
+                    "Limite diario de transação pessoa física excedido: R$ " + totalRemessasComRemessaAtual.toString());
+        } else if (usuarioRemetente.isCnpj()
+                && totalRemessasComRemessaAtual.compareTo(new BigDecimal(LIMITE_TRANSACIONADO_PJ)) == SUPERIOR_LIMITE) {
+            throw new RemessaException(
+                    "Limite diario de transação pessoa jurídica excedido: R$ "
+                            + totalRemessasComRemessaAtual.toString());
+        }
     }
 
     private Usuario obtemUsuarioPorEmail(String email) throws UsuarioInexistenteException {
@@ -52,19 +90,14 @@ public class RemessasService {
         return usuarioDestinatarioOpcional.get();
     }
 
-    private void calculaCarteiraPtRemetente(RemessaDto remessaDto, Usuario usuarioRemetente) throws RemessaException {
-        var carteiraPtRemetente = usuarioRemetente.getCarteiraPt();
-
-        if (carteiraPtRemetente.getSaldo().compareTo(remessaDto.getRemessa()) == SALDO_INSUFICIENTE) {
-            throw new RemessaException("Saldo do remetente insuficiente");
-        }
+    private void calculaCarteiraPtRemetente(RemessaDto remessaDto, Carteira carteiraPtRemetente)
+            throws RemessaException {
 
         carteiraPtRemetente.setSaldo(
                 calculaSaldoRemetente(carteiraPtRemetente.getSaldo(), remessaDto.getRemessa()));
     }
 
-    private void calculaCarteiraEnDestinatario(RemessaDto remessaDto, Usuario usuarioDestinario) {
-        var carteiraEnDestinatario = usuarioDestinario.getCarteiraEn();
+    private void calculaCarteiraEnDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario) {
         carteiraEnDestinatario.setSaldo(calculaSaldoDestinatario(remessaDto, carteiraEnDestinatario));
     }
 
@@ -87,13 +120,12 @@ public class RemessasService {
     }
 
     private Remessa salvaRemessa(RemessaDto remessaDto, Usuario usuarioRemetente, Usuario usuarioDestinario) {
-        var date = new Date();
 
         var remessa = Remessa.builder()
                 .usuarioRemetente(usuarioRemetente)
                 .usuarioDestinario(usuarioDestinario)
                 .remessa(remessaDto.getRemessa())
-                .dataRemessa(new Timestamp(date.getTime()))
+                .dataRemessa(LocalDateTime.now())
                 .build();
 
         remessaRepository.save(remessa);
