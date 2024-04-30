@@ -36,6 +36,7 @@ public class UsuariosController extends BaseController {
     @PostMapping("/pf")
     public ResponseEntity<String> criarPessoaFisica(@Valid @RequestBody CriarPessoaFisicaUsuarioDto criarUsuarioDto,
             BindingResult bindingResult) throws UsuarioExistenteException, ValidacaoRequestException {
+
         if (bindingResult.hasErrors()) {
             throw new ValidacaoRequestException(bindingResult.getAllErrors());
         }

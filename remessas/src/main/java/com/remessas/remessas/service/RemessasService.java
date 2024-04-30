@@ -32,6 +32,7 @@ public class RemessasService {
     private static final int LIMITE_TRANSACIONADO_PJ = 50000;
     private final UsuariosRepository usuariosRepository;
     private final RemessasRepository remessaRepository;
+    private final CotacoesService cotacoesService;
 
     @Transactional
     public Remessa criarRemessa(String emailRemetente, RemessaDto remessaDto) throws Exception {
@@ -97,7 +98,8 @@ public class RemessasService {
                 subtraiSaldoRemetente(carteiraPtRemetente.getSaldo(), remessaDto.getRemessa()));
     }
 
-    private void calculaCarteiraEnDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario) {
+    private void calculaCarteiraEnDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario)
+            throws Exception {
         carteiraEnDestinatario.setSaldo(adicionaSaldoDestinatario(remessaDto, carteiraEnDestinatario));
     }
 
@@ -105,9 +107,11 @@ public class RemessasService {
         return saldoRemetente.subtract(remessa);
     }
 
-    private BigDecimal adicionaSaldoDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario) {
+    private BigDecimal adicionaSaldoDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario)
+            throws Exception {
+        var valorCotacao = cotacoesService.obtemCotacaoAtual();
         var precisaoCalculo = new MathContext(3, RoundingMode.HALF_UP);
-        var remessaConvertida = remessaDto.getRemessa().divide(new BigDecimal("5.16"), precisaoCalculo);
+        var remessaConvertida = remessaDto.getRemessa().divide(valorCotacao, precisaoCalculo);
         return carteiraEnDestinatario.getSaldo().add(remessaConvertida);
     }
 

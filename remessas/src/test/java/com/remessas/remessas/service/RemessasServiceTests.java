@@ -31,11 +31,16 @@ import com.remessas.remessas.util.DataUtil;
 
 @SpringBootTest
 public class RemessasServiceTests {
+        private static final BigDecimal cotacaoAtual = new BigDecimal("5.16");
+
         @Mock
         private UsuariosRepository usuariosRepository;
 
         @Mock
         private RemessasRepository remessasRepository;
+
+        @Mock
+        private CotacoesService cotacoesService;
 
         @InjectMocks
         private RemessasService remessasService;
@@ -94,7 +99,7 @@ public class RemessasServiceTests {
 
         @Test
         void Retorna_Erro_Limite_Maior_Que_Dez_Mil_PF() throws Exception {
-                var valorRemessa = new BigDecimal("5.16");
+                var valorRemessa = cotacaoAtual;
                 var inicioMensagemErro = "Limite diario de transação pessoa física";
                 var remessaDto = new RemessaDto();
                 remessaDto.setEmailDestinario(destinatario);
@@ -132,7 +137,7 @@ public class RemessasServiceTests {
 
         @Test
         void Retorna_Erro_Limite_Maior_Que_Cinquenta_Mil_Pj() throws Exception {
-                var valorRemessa = new BigDecimal("5.16");
+                var valorRemessa = cotacaoAtual;
                 var inicioMensagemErro = "Limite diario de transação pessoa jurídica";
                 var remessaDto = new RemessaDto();
                 remessaDto.setEmailDestinario(destinatario);
@@ -170,7 +175,7 @@ public class RemessasServiceTests {
 
         @Test
         void Retorna_Sucesso() throws Exception {
-                var valorRemessa = new BigDecimal("5.16");
+                var valorRemessa = cotacaoAtual;
                 var resultadoSaldoRemetente = new BigDecimal("30");
                 var resultadoSaldoDestinatario = new BigDecimal("1.00");
                 var resultadoIgual = 0;
@@ -181,29 +186,27 @@ public class RemessasServiceTests {
                 remessaDto.setEmailDestinario(destinatario);
                 remessaDto.setRemessa(valorRemessa);
 
-                var usuarioRemetente = Usuario.builder()
-                                .carteiras(getCarteiras(new BigDecimal("35.16"), BigDecimal.ZERO))
-                                .id(1L)
-                                .cpfCnpj(cpfCnpjRemetente)
-                                .build();
+                mockUsuarioRemetente(cpfCnpjRemetente);
+                mockUsuarioDestinatario();
 
-                var usuarioDestinario = Usuario.builder()
-                                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
-                                .build();
+                mockRemessasDia(valorRemessaRealizadaHoje);
+                when(cotacoesService.obtemCotacaoAtual()).thenReturn(cotacaoAtual);
+                mockRemessaAtual(valorRemessa, resultadoSaldoRemetente, resultadoSaldoDestinatario, cpfCnpjRemetente);
 
-                when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
-                when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinario));
+                var remessa = remessasService.criarRemessa(remetente, remessaDto);
 
-                var remessaHoje = Remessa.builder().remessa(valorRemessaRealizadaHoje)
-                                .dataRemessa(DataUtil.obtemDataHojeInicial())
-                                .build();
+                assertEquals(valorRemessa.compareTo(remessa.getRemessa()), resultadoIgual);
+                assertEquals(resultadoSaldoRemetente
+                                .compareTo(remessa.getUsuarioRemetente().getCarteiraPt().getSaldo()),
+                                resultadoIgual);
+                assertEquals(resultadoSaldoDestinatario
+                                .compareTo(remessa.getUsuarioDestinario().getCarteiraEn().getSaldo()),
+                                resultadoIgual);
 
-                var remessasHoje = new ArrayList<Remessa>();
-                remessasHoje.add(remessaHoje);
+        }
 
-                when(remessasRepository.findRemessaByUsuarioAndDataInicioAndDataFim(anyLong(), any(), any()))
-                                .thenReturn(remessasHoje);
-
+        private void mockRemessaAtual(BigDecimal valorRemessa, BigDecimal resultadoSaldoRemetente,
+                        BigDecimal resultadoSaldoDestinatario, String cpfCnpjRemetente) {
                 var usuarioRemetentePosRemessa = Usuario.builder()
                                 .carteiras(getCarteiras(resultadoSaldoRemetente, BigDecimal.ZERO))
                                 .id(1L)
@@ -217,17 +220,36 @@ public class RemessasServiceTests {
                                 .usuarioDestinario(usuarioDestinarioPosRemessa)
                                 .remessa(valorRemessa).build();
                 when(remessasRepository.saveAndFlush(any())).thenReturn(remessaAtual);
+        }
 
-                var remessa = remessasService.criarRemessa(remetente, remessaDto);
+        private void mockRemessasDia(BigDecimal valorRemessaRealizadaHoje) {
+                var remessaHoje = Remessa.builder().remessa(valorRemessaRealizadaHoje)
+                                .dataRemessa(DataUtil.obtemDataHojeInicial())
+                                .build();
 
-                assertEquals(valorRemessa.compareTo(remessa.getRemessa()), resultadoIgual);
-                assertEquals(resultadoSaldoRemetente
-                                .compareTo(remessa.getUsuarioRemetente().getCarteiraPt().getSaldo()),
-                                resultadoIgual);
-                assertEquals(resultadoSaldoDestinatario
-                                .compareTo(remessa.getUsuarioDestinario().getCarteiraEn().getSaldo()),
-                                resultadoIgual);
+                var remessasHoje = new ArrayList<Remessa>();
+                remessasHoje.add(remessaHoje);
 
+                when(remessasRepository.findRemessaByUsuarioAndDataInicioAndDataFim(anyLong(), any(), any()))
+                                .thenReturn(remessasHoje);
+        }
+
+        private void mockUsuarioDestinatario() {
+                var usuarioDestinatario = Usuario.builder()
+                                .carteiras(getCarteiras(BigDecimal.ZERO, BigDecimal.ZERO))
+                                .build();
+
+                when(usuariosRepository.findByEmail(destinatario)).thenReturn(Optional.of(usuarioDestinatario));
+        }
+
+        private void mockUsuarioRemetente(String cpfCnpjRemetente) {
+                var usuarioRemetente = Usuario.builder()
+                                .carteiras(getCarteiras(new BigDecimal("35.16"), BigDecimal.ZERO))
+                                .id(1L)
+                                .cpfCnpj(cpfCnpjRemetente)
+                                .build();
+
+                when(usuariosRepository.findByEmail(remetente)).thenReturn(Optional.of(usuarioRemetente));
         }
 
         private List<Carteira> getCarteiras(BigDecimal saldoPt, BigDecimal saldoEn) {
