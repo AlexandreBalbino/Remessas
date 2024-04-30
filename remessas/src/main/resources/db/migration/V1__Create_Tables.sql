@@ -10,15 +10,16 @@ CREATE TABLE IF NOT EXISTS usuario (
 CREATE TABLE IF NOT EXISTS carteira (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
-    saldo NUMERIC(12, 2) NOT NULL,
-    origem VARCHAR(2) NOT NULL,
+    saldo NUMERIC(12, 4) NOT NULL,
+    origem VARCHAR(4) NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id)
 );
 
 
 CREATE TABLE IF NOT EXISTS remessa (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    remessa NUMERIC(12, 2) NOT NULL,
+    remessa NUMERIC(12, 4) NOT NULL,
+    cotacao_dolar NUMERIC(12, 4) NOT NULL,
     id_usuario_remetente INT NOT NULL,
     id_usuario_destinatario INT NOT NULL,
     data_remessa TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

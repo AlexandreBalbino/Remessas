@@ -16,7 +16,7 @@ INSERT INTO carteira( id_usuario, saldo, origem) VALUES
  (4, 5.50, 'EN'); 
 
  
-INSERT INTO remessa( remessa, id_usuario_remetente, id_usuario_destinatario) VALUES
- (35.50, 1, 2),
- (50, 2, 1)
+INSERT INTO remessa( remessa, cotacao_dolar,id_usuario_remetente, id_usuario_destinatario) VALUES
+ (35.50,  5.16, 1, 2),
+ (50, 5.11, 2, 1)
  ;

@@ -34,6 +34,9 @@ public class Remessa {
     private BigDecimal remessa;
 
     @Column(nullable = false)
+    private BigDecimal cotacaoDolar;
+
+    @Column(nullable = false)
     private LocalDateTime dataRemessa;
 
     @ManyToOne

@@ -202,6 +202,7 @@ public class RemessasServiceTests {
                 assertEquals(resultadoSaldoDestinatario
                                 .compareTo(remessa.getUsuarioDestinario().getCarteiraEn().getSaldo()),
                                 resultadoIgual);
+                assertEquals(cotacaoAtual.compareTo(remessa.getCotacaoDolar()), 0);
 
         }
 
@@ -216,9 +217,12 @@ public class RemessasServiceTests {
                 var usuarioDestinarioPosRemessa = Usuario.builder()
                                 .carteiras(getCarteiras(BigDecimal.ZERO, resultadoSaldoDestinatario))
                                 .build();
-                var remessaAtual = Remessa.builder().usuarioRemetente(usuarioRemetentePosRemessa)
+                var remessaAtual = Remessa.builder()
+                                .usuarioRemetente(usuarioRemetentePosRemessa)
                                 .usuarioDestinario(usuarioDestinarioPosRemessa)
-                                .remessa(valorRemessa).build();
+                                .remessa(valorRemessa)
+                                .cotacaoDolar(cotacaoAtual)
+                                .build();
                 when(remessasRepository.saveAndFlush(any())).thenReturn(remessaAtual);
         }
 

@@ -44,10 +44,12 @@ public class RemessasService {
         validaTotalRemessasDiaria(remessaDto, usuarioRemetente);
 
         calculaCarteiraPtRemetente(remessaDto, usuarioRemetente.getCarteiraPt());
-        calculaCarteiraEnDestinatario(remessaDto, usuarioDestinario.getCarteiraEn());
+
+        var valorCotacao = cotacoesService.obtemCotacaoAtual();
+        calculaCarteiraEnDestinatario(remessaDto, usuarioDestinario.getCarteiraEn(), valorCotacao);
 
         salvaUsuarios(usuarioRemetente, usuarioDestinario);
-        var remessa = salvaRemessa(remessaDto, usuarioRemetente, usuarioDestinario);
+        var remessa = salvaRemessa(remessaDto, usuarioRemetente, usuarioDestinario, valorCotacao);
         return remessa;
     }
 
@@ -98,18 +100,20 @@ public class RemessasService {
                 subtraiSaldoRemetente(carteiraPtRemetente.getSaldo(), remessaDto.getRemessa()));
     }
 
-    private void calculaCarteiraEnDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario)
+    private void calculaCarteiraEnDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario,
+            BigDecimal valorCotacao)
             throws Exception {
-        carteiraEnDestinatario.setSaldo(adicionaSaldoDestinatario(remessaDto, carteiraEnDestinatario));
+        carteiraEnDestinatario.setSaldo(adicionaSaldoDestinatario(remessaDto, carteiraEnDestinatario, valorCotacao));
     }
 
     private BigDecimal subtraiSaldoRemetente(BigDecimal saldoRemetente, BigDecimal remessa) {
         return saldoRemetente.subtract(remessa);
     }
 
-    private BigDecimal adicionaSaldoDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario)
+    private BigDecimal adicionaSaldoDestinatario(RemessaDto remessaDto, Carteira carteiraEnDestinatario,
+            BigDecimal valorCotacao)
             throws Exception {
-        var valorCotacao = cotacoesService.obtemCotacaoAtual();
+
         var precisaoCalculo = new MathContext(3, RoundingMode.HALF_UP);
         var remessaConvertida = remessaDto.getRemessa().divide(valorCotacao, precisaoCalculo);
         return carteiraEnDestinatario.getSaldo().add(remessaConvertida);
@@ -123,12 +127,14 @@ public class RemessasService {
         usuariosRepository.saveAllAndFlush(usuarios);
     }
 
-    private Remessa salvaRemessa(RemessaDto remessaDto, Usuario usuarioRemetente, Usuario usuarioDestinario) {
+    private Remessa salvaRemessa(RemessaDto remessaDto, Usuario usuarioRemetente, Usuario usuarioDestinario,
+            BigDecimal valorCotacao) {
 
         var remessa = Remessa.builder()
                 .usuarioRemetente(usuarioRemetente)
                 .usuarioDestinario(usuarioDestinario)
                 .remessa(remessaDto.getRemessa())
+                .cotacaoDolar(valorCotacao)
                 .dataRemessa(LocalDateTime.now())
                 .build();
 
