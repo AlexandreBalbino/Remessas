@@ -18,6 +18,7 @@ Para rodar entrar na pasta /remessas e utilizar comando
 ## Bibliotecas utilizadas
 
 As principais bibliotecas utilizadas foram:
+```
     - jpa
     - flywaydb
     - h2database
@@ -25,14 +26,17 @@ As principais bibliotecas utilizadas foram:
     - hibernate.validator
     - apache.httpcomponents
     - google.code.gson
+```
 
 ## Banco de dados
 
 O banco de dados foi pensado para ser enxuto e o menos complexo possível.
 As três tabelas são:
+```
     - usuario
     - carteira
     - remessa
+```
 
 Sendo que um usuario sempre irá possuir uma carteira americana e uma brasileira.
 A remessa tem como objetivo manter o histórico das transações.
@@ -43,21 +47,29 @@ Para melhorar a apresentação foram inseridos dados via flyway.
 ## Tópicos de pastas
 
 O projeto foi pensado utilizando três camadas principais. Sendo elas: 
+```
     - Controller
     - Services
     - Repository
+```
 
 Além disso, existem os diretorios com os modelos de negócio
+```
     - Dto
     - Entity
+```
 
 Para transitar entre as duas camadas de modelo há os mappers. 
 Existem também as camadas:
+```
     - Util
     - Enums
+```
 
 Optei por exceções customizadas devido ao fato de permitir maior visão das validações ocorridas no codigo.
+```
     - Exception
+```
 
 ## endpoints
 
